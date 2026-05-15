@@ -1,0 +1,34 @@
+---
+- name: Backup all network device configs
+  hosts: all:!linux_hosts
+  gather_facts: no
+
+  tasks:
+    - name: Create backup directory with timestamp
+      ansible.builtin.file:
+        path: "{{ playbook_dir }}/../backups/{{ lookup('pipe', 'date +%Y%m%d-%H%M') }}"
+        state: directory
+      delegate_to: localhost
+      run_once: yes
+      register: backup_dir
+
+    - name: Backup Arista config via eAPI
+      arista.eos.eos_config:
+        backup: yes
+        backup_options:
+          dir: "{{ backup_dir.path }}"
+          filename: "{{ inventory_hostname }}.cfg"
+      when: "'arista' in group_names"
+
+    - name: Backup Cisco IOS config
+      cisco.ios.ios_config:
+        backup: yes
+        backup_options:
+          dir: "{{ backup_dir.path }}"
+          filename: "{{ inventory_hostname }}.cfg"
+      when: "'cisco' in group_names or 'cisco_l2' in group_names"
+
+    - name: Show backup summary
+      debug:
+        msg: "Configs backed up to {{ backup_dir.path }}"
+      run_once: yes

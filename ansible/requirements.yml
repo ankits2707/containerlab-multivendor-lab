@@ -1,0 +1,4 @@
+---
+collections:
+  - arista.eos
+  - cisco.ios

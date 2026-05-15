@@ -1,0 +1,59 @@
+---
+- name: Gather Arista cEOS facts
+  hosts: arista
+  gather_facts: no
+  tasks:
+    - name: Get EOS facts via eAPI
+      arista.eos.eos_facts:
+        gather_subset: all
+      register: result
+
+    - name: Print device info
+      debug:
+        msg:
+          - "Device: {{ ansible_net_hostname }}"
+          - "Model:  {{ ansible_net_model }}"
+          - "EOS:    {{ ansible_net_version }}"
+
+- name: Gather Cisco IOL facts
+  hosts: cisco
+  gather_facts: no
+  tasks:
+    - name: Get IOS facts via CLI
+      cisco.ios.ios_facts:
+        gather_subset: all
+      register: result
+
+    - name: Print device info
+      debug:
+        msg:
+          - "Device: {{ ansible_net_hostname }}"
+          - "Model:  {{ ansible_net_model }}"
+          - "IOS:    {{ ansible_net_version }}"
+
+- name: Gather Cisco IOL L2 facts
+  hosts: cisco_l2
+  gather_facts: no
+  tasks:
+    - name: Get IOS L2 facts
+      cisco.ios.ios_facts:
+        gather_subset: all
+      register: result
+
+    - name: Print device info
+      debug:
+        msg:
+          - "Device: {{ ansible_net_hostname }}"
+          - "Model:  {{ ansible_net_model }}"
+          - "IOS:    {{ ansible_net_version }}"
+          - "VLANs:  {{ ansible_net_vlan | default('N/A') }}"
+
+- name: Gather Linux host facts
+  hosts: linux_hosts
+  tasks:
+    - name: Print system info
+      debug:
+        msg:
+          - "Host: {{ inventory_hostname }}"
+          - "IP:   {{ ansible_default_ipv4.address | default('unknown') }}"
+          - "OS:   {{ ansible_distribution | default('unknown') }}"

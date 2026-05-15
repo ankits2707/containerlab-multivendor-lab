@@ -1,0 +1,54 @@
+---
+all:
+  children:
+    arista:
+      hosts:
+        spine-01:
+          ansible_host: 172.20.0.11
+        spine-02:
+          ansible_host: 172.20.0.12
+      vars:
+        ansible_network_os: arista.eos.eos
+        ansible_connection: ansible.netcommon.httpapi
+        ansible_httpapi_use_ssl: false
+        ansible_httpapi_validate_certs: false
+        ansible_user: admin
+        ansible_password: admin
+
+    cisco:
+      hosts:
+        leaf-01:
+          ansible_host: 172.20.0.21
+        leaf-02:
+          ansible_host: 172.20.0.22
+      vars:
+        ansible_network_os: cisco.ios.ios
+        ansible_connection: ansible.netcommon.network_cli
+        ansible_user: admin
+        ansible_password: admin
+        ansible_become: yes
+        ansible_become_method: enable
+
+    cisco_l2:
+      hosts:
+        edge-switch:
+          ansible_host: 172.20.0.30
+      vars:
+        ansible_network_os: cisco.ios.ios
+        ansible_connection: ansible.netcommon.network_cli
+        ansible_user: admin
+        ansible_password: admin
+        ansible_become: yes
+        ansible_become_method: enable
+
+    linux_hosts:
+      hosts:
+        host-01:
+          ansible_host: 172.20.0.101
+        host-02:
+          ansible_host: 172.20.0.102
+      vars:
+        ansible_user: root
+        ansible_password: root
+        ansible_connection: ssh
+        ansible_python_interpreter: /usr/bin/python3

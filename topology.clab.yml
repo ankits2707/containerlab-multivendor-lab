@@ -1,0 +1,60 @@
+name: multivendor-automation
+
+topology:
+  nodes:
+    # --- Arista cEOS Spines (eAPI automation) ---
+    spine-01:
+      kind: arista_ceos
+      image: ceos:4.32.2F
+      mgmt-ipv4: 172.20.0.11
+      startup-config: configs/spine-01.cfg
+
+    spine-02:
+      kind: arista_ceos
+      image: ceos:4.32.2F
+      mgmt-ipv4: 172.20.0.12
+      startup-config: configs/spine-02.cfg
+
+    # --- Cisco IOL Leaf Routers (CLI / Ansible ios module) ---
+    leaf-01:
+      image: vrnetlab/cisco_iol:17.12.01
+      mgmt-ipv4: 172.20.0.21
+
+    leaf-02:
+      image: vrnetlab/cisco_iol:17.12.01
+      mgmt-ipv4: 172.20.0.22
+
+    # --- Cisco IOL L2 Edge Switch (VLAN / STP automation) ---
+    edge-switch:
+      image: vrnetlab/cisco_iol:l2-17.12.01
+      mgmt-ipv4: 172.20.0.30
+
+    # --- Linux End Hosts (for connectivity testing) ---
+    host-01:
+      kind: linux
+      image: ghcr.io/hellt/network-multitool:latest
+      mgmt-ipv4: 172.20.0.101
+
+    host-02:
+      kind: linux
+      image: ghcr.io/hellt/network-multitool:latest
+      mgmt-ipv4: 172.20.0.102
+
+  links:
+    # Spine-Leaf L3 underlay
+    - endpoints: ["spine-01:eth1", "leaf-01:eth1"]
+    - endpoints: ["spine-01:eth2", "leaf-02:eth1"]
+    - endpoints: ["spine-02:eth1", "leaf-01:eth2"]
+    - endpoints: ["spine-02:eth2", "leaf-02:eth2"]
+
+    # Leaf to Edge switch
+    - endpoints: ["leaf-01:eth3", "edge-switch:eth1"]
+    - endpoints: ["leaf-02:eth3", "edge-switch:eth2"]
+
+    # Host connections
+    - endpoints: ["leaf-01:eth4", "host-01:eth1"]
+    - endpoints: ["leaf-02:eth4", "host-02:eth1"]
+
+mgmt:
+  network: clab-mgmt
+  ipv4-subnet: 172.20.0.0/24

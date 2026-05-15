@@ -1,0 +1,61 @@
+---
+- name: Validate Arista BGP & interface state
+  hosts: arista
+  gather_facts: no
+  tasks:
+    - name: Show BGP summary
+      arista.eos.eos_command:
+        commands:
+          - show ip bgp summary
+          - show ip interface brief
+      register: output
+
+    - name: Print BGP status
+      debug:
+        msg: "{{ output.stdout[0] | split('\n')[:8] }}"
+
+    - name: Print interfaces
+      debug:
+        msg: "{{ output.stdout[1] | split('\n')[:8] }}"
+
+- name: Validate Cisco IOL OSPF & interface state
+  hosts: cisco
+  gather_facts: no
+  tasks:
+    - name: Show OSPF neighbors and interfaces
+      cisco.ios.ios_command:
+        commands:
+          - show ip ospf neighbor
+          - show ip interface brief
+      register: output
+
+    - name: Print OSPF neighbors
+      debug:
+        msg: "{{ output.stdout[0] | split('\n')[:10] }}"
+
+- name: Validate edge-switch VLANs
+  hosts: cisco_l2
+  gather_facts: no
+  tasks:
+    - name: Show VLAN and spanning-tree
+      cisco.ios.ios_command:
+        commands:
+          - show vlan brief
+          - show spanning-tree summary
+      register: output
+
+    - name: Print VLAN info
+      debug:
+        msg: "{{ output.stdout[0] | split('\n')[:10] }}"
+
+- name: End-to-end connectivity test
+  hosts: linux_hosts
+  tasks:
+    - name: Ping gateway
+      ansible.builtin.shell: "ping -c 2 {{ ansible_host }}"
+      register: ping_result
+      ignore_errors: yes
+
+    - name: Show ping result
+      debug:
+        msg: "{{ ping_result.stdout_lines[:2] }}"
