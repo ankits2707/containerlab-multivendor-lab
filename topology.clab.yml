@@ -60,5 +60,4 @@ topology:
     - endpoints: ["leaf-02:eth4", "host-02:eth1"]
 
 mgmt:
-  network: clab-mgmt
-  ipv4-subnet: 172.20.0.0/24
+  network: docker_default
